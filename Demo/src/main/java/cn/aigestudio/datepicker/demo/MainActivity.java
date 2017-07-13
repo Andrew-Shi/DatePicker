@@ -16,11 +16,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import cn.aigestudio.datepicker.bizs.calendars.DPCManager;
 import cn.aigestudio.datepicker.bizs.decors.DPDecor;
+import cn.aigestudio.datepicker.bizs.themes.DPBaseTheme;
+import cn.aigestudio.datepicker.bizs.themes.DPTManager;
 import cn.aigestudio.datepicker.cons.DPMode;
 import cn.aigestudio.datepicker.views.DatePicker;
 
@@ -174,13 +175,22 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).create();
                 dialog.show();
+
+                DPTManager.getInstance().initCalendar(new DPBaseTheme(){
+                    @Override
+                    public int colorTitleBG() {
+                        return 0xFF1d7cde;
+                    }
+                });
                 DatePicker picker = new DatePicker(MainActivity.this);
                 picker.setDate(2015, 10);
-                picker.setMode(DPMode.SINGLE);
-                picker.setOnDatePickedListener(new DatePicker.OnDatePickedListener() {
+                picker.setFestivalDisplay(false);
+
+                picker.setMode(DPMode.MULTIPLE);
+                picker.setOnDateSelectedListener(new DatePicker.OnDateSelectedListener() {
                     @Override
-                    public void onDatePicked(String date) {
-                        Toast.makeText(MainActivity.this, date, Toast.LENGTH_LONG).show();
+                    public void onDateSelected(List<String> date) {
+                        Toast.makeText(MainActivity.this, date.toString(), Toast.LENGTH_LONG).show();
                         dialog.dismiss();
                     }
                 });

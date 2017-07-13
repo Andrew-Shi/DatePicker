@@ -100,6 +100,13 @@ public final class DPTManager {
     }
 
     /**
+     * @see DPTheme#colorSelectedText()
+     */
+    public int colorSelectedText() {
+        return theme.colorSelectedText();
+    }
+
+    /**
      * @see DPTheme#colorHoliday()
      */
     public int colorHoliday() {

@@ -34,6 +34,8 @@ import cn.aigestudio.datepicker.bizs.themes.DPTManager;
 import cn.aigestudio.datepicker.cons.DPMode;
 import cn.aigestudio.datepicker.entities.DPInfo;
 
+import static android.R.attr.data;
+
 /**
  * MonthView
  *
@@ -89,8 +91,8 @@ public class MonthView extends View {
             isTodayDisplay = true,
             isDeferredDisplay = true;
 
-    private Map<String, BGCircle> cirApr = new HashMap<>();
-    private Map<String, BGCircle> cirDpr = new HashMap<>();
+    private Map<String, BGCircle> cirApr = new HashMap<>();//选中的背景
+    private Map<String, BGCircle> cirDpr = new HashMap<>();//取消选中的背景
 
     private List<String> dateSelected = new ArrayList<>();
 
@@ -276,14 +278,13 @@ public class MonthView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(mTManager.colorBG());
+        drawBGCircle(canvas);
 
         draw(canvas, width * indexMonth, (indexYear - 1) * height, topYear, topMonth);
         draw(canvas, width * (indexMonth - 1), height * indexYear, leftYear, leftMonth);
         draw(canvas, width * indexMonth, indexYear * height, centerYear, centerMonth);
         draw(canvas, width * (indexMonth + 1), height * indexYear, rightYear, rightMonth);
         draw(canvas, width * indexMonth, (indexYear + 1) * height, bottomYear, bottomMonth);
-
-        drawBGCircle(canvas);
     }
 
     private void drawBGCircle(Canvas canvas) {
@@ -344,10 +345,10 @@ public class MonthView extends View {
 
     private void drawBG(Canvas canvas, Rect rect, DPInfo info) {
         if (null != mDPDecor && info.isDecorBG) {
-            mDPDecor.drawDecorBG(canvas, rect, mPaint,
-                    centerYear + "-" + centerMonth + "-" + info.strG);
+            String data = centerYear + "-" + centerMonth + "-" + info.strG;
+            mDPDecor.drawDecorBG(canvas, rect, mPaint, data);
         }
-        if (info.isToday && isTodayDisplay) {
+        if (info.isToday && isTodayDisplay && !dateSelected.contains(data)) {
             drawBGToday(canvas, rect);
         } else {
             if (isHolidayDisplay) drawBGHoliday(canvas, rect, info.isHoliday);
@@ -373,7 +374,9 @@ public class MonthView extends View {
 
     private void drawGregorian(Canvas canvas, Rect rect, String str, boolean isWeekend) {
         mPaint.setTextSize(sizeTextGregorian);
-        if (isWeekend) {
+        if (dateSelected.contains(centerYear + "-" + centerMonth + "-" + str)){
+            mPaint.setColor(mTManager.colorSelectedText());
+        } else if (isWeekend) {
             mPaint.setColor(mTManager.colorWeekend());
         } else {
             mPaint.setColor(mTManager.colorG());

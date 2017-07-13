@@ -20,7 +20,7 @@ public abstract class DPTheme {
     public abstract int colorBG();
 
     /**
-     * 背景圆颜色
+     * 选中的背景圆颜色
      * 
      * Color of MonthView's selected circle
      *
@@ -90,4 +90,12 @@ public abstract class DPTheme {
      * @return 16进制颜色值 hex color
      */
     public abstract int colorHoliday();
+
+
+    /**
+     * 选中日期的文本颜色
+     *
+     * @return 16进制颜色值 hex color
+     */
+    public abstract int colorSelectedText();
 }

@@ -15,7 +15,7 @@ public class DPBaseTheme extends DPTheme {
 
     @Override
     public int colorBGCircle() {
-        return 0x44000000;
+        return 0xFF1d7cde;
     }
 
     @Override
@@ -51,5 +51,10 @@ public class DPBaseTheme extends DPTheme {
     @Override
     public int colorHoliday() {
         return 0x80FED6D6;
+    }
+
+    @Override
+    public int colorSelectedText() {
+        return 0xEEFFFFFF;
     }
 }
