@@ -34,8 +34,6 @@ import cn.aigestudio.datepicker.bizs.themes.DPTManager;
 import cn.aigestudio.datepicker.cons.DPMode;
 import cn.aigestudio.datepicker.entities.DPInfo;
 
-import static android.R.attr.data;
-
 /**
  * MonthView
  *
@@ -344,8 +342,8 @@ public class MonthView extends View {
     }
 
     private void drawBG(Canvas canvas, Rect rect, DPInfo info) {
+        String data = centerYear + "-" + centerMonth + "-" + info.strG;
         if (null != mDPDecor && info.isDecorBG) {
-            String data = centerYear + "-" + centerMonth + "-" + info.strG;
             mDPDecor.drawDecorBG(canvas, rect, mPaint, data);
         }
         if (info.isToday && isTodayDisplay && !dateSelected.contains(data)) {

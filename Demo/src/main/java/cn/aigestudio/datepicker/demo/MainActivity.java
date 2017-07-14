@@ -183,9 +183,8 @@ public class MainActivity extends Activity {
                     }
                 });
                 DatePicker picker = new DatePicker(MainActivity.this);
-                picker.setDate(2015, 10);
+                picker.setDate(2017, 7);
                 picker.setFestivalDisplay(false);
-
                 picker.setMode(DPMode.MULTIPLE);
                 picker.setOnDateSelectedListener(new DatePicker.OnDateSelectedListener() {
                     @Override
