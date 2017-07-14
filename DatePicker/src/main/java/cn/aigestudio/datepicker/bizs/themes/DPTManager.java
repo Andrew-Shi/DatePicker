@@ -107,6 +107,13 @@ public final class DPTManager {
     }
 
     /**
+     * @see DPTheme#unableTextColor()
+     */
+    public int unableTextColor() {
+        return theme.unableTextColor();
+    }
+
+    /**
      * @see DPTheme#colorHoliday()
      */
     public int colorHoliday() {

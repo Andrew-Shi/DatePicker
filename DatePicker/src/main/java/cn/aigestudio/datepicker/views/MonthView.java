@@ -15,6 +15,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -23,7 +24,7 @@ import android.widget.Scroller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,7 @@ public class MonthView extends View {
             isTodayDisplay = true,
             isDeferredDisplay = true;
 
-    private Date startDate, endDate;
+    private Calendar startDate, endDate;
 
     private Map<String, BGCircle> cirApr = new HashMap<>();//选中的背景
     private Map<String, BGCircle> cirDpr = new HashMap<>();//取消选中的背景
@@ -279,12 +280,14 @@ public class MonthView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(mTManager.colorBG());
         drawBGCircle(canvas);
+        Log.d("time start", System.currentTimeMillis() + "");
 
         draw(canvas, width * indexMonth, (indexYear - 1) * height, topYear, topMonth);
         draw(canvas, width * (indexMonth - 1), height * indexYear, leftYear, leftMonth);
         draw(canvas, width * indexMonth, indexYear * height, centerYear, centerMonth);
         draw(canvas, width * (indexMonth + 1), height * indexYear, rightYear, rightMonth);
         draw(canvas, width * indexMonth, (indexYear + 1) * height, bottomYear, bottomMonth);
+        Log.d("time   end", System.currentTimeMillis() + "");
     }
 
     private void drawBGCircle(Canvas canvas) {
@@ -375,9 +378,7 @@ public class MonthView extends View {
     private void drawGregorian(Canvas canvas, Rect rect, String str, boolean isWeekend) {
         mPaint.setTextSize(sizeTextGregorian);
         String stringDate = centerYear + "-" + centerMonth + "-" + str;
-        if (!TextUtils.isEmpty(str) && startDate != null && centerMonth < startDate.getMonth() + 1){
-            mPaint.setColor(mTManager.unableTextColor());
-        } else if (!TextUtils.isEmpty(str) && endDate != null && centerMonth > endDate.getMonth() + 1){
+        if (isUnable(str)){
             mPaint.setColor(mTManager.unableTextColor());
         } else if (dateSelected.contains(stringDate)){
             mPaint.setColor(mTManager.colorSelectedText());
@@ -390,6 +391,19 @@ public class MonthView extends View {
         if (!isFestivalDisplay)
             y = rect.centerY() + Math.abs(mPaint.ascent()) - (mPaint.descent() - mPaint.ascent()) / 2F;
         canvas.drawText(str, rect.centerX(), y, mPaint);
+    }
+
+    private boolean isUnable(String str) {
+        if (TextUtils.isEmpty(str)){
+            return true;
+        }
+        boolean before = startDate != null && (centerYear < startDate.get(Calendar.YEAR)
+                || (centerYear == startDate.get(Calendar.YEAR) && centerMonth < startDate.get(Calendar.MONTH) + 1)
+                || (centerYear == startDate.get(Calendar.YEAR) && centerMonth == startDate.get(Calendar.MONTH) + 1 && Integer.parseInt(str) < startDate.get(Calendar.DAY_OF_MONTH)));
+        boolean after = endDate != null && (centerYear > endDate.get(Calendar.YEAR)
+                || (centerYear == endDate.get(Calendar.YEAR) && centerMonth > endDate.get(Calendar.MONTH) + 1)
+                || (centerYear == endDate.get(Calendar.YEAR) && centerMonth == endDate.get(Calendar.MONTH) + 1 && Integer.parseInt(str) > endDate.get(Calendar.DAY_OF_MONTH)));
+        return before || after;
     }
 
     private void drawFestival(Canvas canvas, Rect rect, String str, boolean isFestival) {
@@ -529,8 +543,8 @@ public class MonthView extends View {
     void setDeferredDisplay(boolean isDeferredDisplay) {
         this.isDeferredDisplay = isDeferredDisplay;
     }
-
-    void setSelectRange(Date startDate, Date endDate){
+    //设置选择范围，包含开始和结束当天
+    void setSelectRange(Calendar startDate, Calendar endDate){
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -594,16 +608,18 @@ public class MonthView extends View {
         for (int i = 0; i < tmp.length; i++) {
             for (int j = 0; j < tmp[i].length; j++) {
                 Region region = tmp[i][j];
-                if (TextUtils.isEmpty(mCManager.obtainDPInfo(centerYear, centerMonth)[i][j].strG)) {
+                String strG = mCManager.obtainDPInfo(centerYear, centerMonth)[i][j].strG;
+                if (TextUtils.isEmpty(strG)) {
                     continue;
                 }
                 if (region.contains(x, y)) {
+                    if (isUnable(strG)) return;
                     List<Region> regions = REGION_SELECTED.get(indexYear + ":" + indexMonth);
                     if (mDPMode == DPMode.SINGLE) {
                         cirApr.clear();
                         regions.add(region);
                         final String date = centerYear + "-" + centerMonth + "-" +
-                                mCManager.obtainDPInfo(centerYear, centerMonth)[i][j].strG;
+                                strG;
                         BGCircle circle = createCircle(
                                 region.getBounds().centerX() + indexMonth * width,
                                 region.getBounds().centerY() + indexYear * height);
@@ -630,7 +646,7 @@ public class MonthView extends View {
                             regions.add(region);
                         }
                         final String date = centerYear + "-" + centerMonth + "-" +
-                                mCManager.obtainDPInfo(centerYear, centerMonth)[i][j].strG;
+                                strG;
                         if (dateSelected.contains(date)) {
                             dateSelected.remove(date);
                             BGCircle circle = cirApr.get(date);
@@ -671,7 +687,7 @@ public class MonthView extends View {
                             regions.add(region);
                         }
                         final String date = centerYear + "-" + centerMonth + "-" +
-                                mCManager.obtainDPInfo(centerYear, centerMonth)[i][j].strG;
+                                strG;
                         if (dateSelected.contains(date)) {
                             dateSelected.remove(date);
                         } else {

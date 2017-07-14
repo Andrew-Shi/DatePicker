@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import cn.aigestudio.datepicker.bizs.calendars.DPCManager;
@@ -184,7 +185,12 @@ public class MainActivity extends Activity {
                 });
                 DatePicker picker = new DatePicker(MainActivity.this);
                 picker.setDate(2017, 7);
+                Calendar start = Calendar.getInstance();
+                Calendar end = Calendar.getInstance();
+                end.add(Calendar.DAY_OF_MONTH, 5);
+                picker.setSelectRange(start, end);
                 picker.setFestivalDisplay(false);
+                picker.setTodayDisplay(false);
                 picker.setMode(DPMode.MULTIPLE);
                 picker.setOnDateSelectedListener(new DatePicker.OnDateSelectedListener() {
                     @Override

@@ -57,4 +57,9 @@ public class DPBaseTheme extends DPTheme {
     public int colorSelectedText() {
         return 0xEEFFFFFF;
     }
+
+    @Override
+    public int unableTextColor() {
+        return 0xEE999999;
+    }
 }

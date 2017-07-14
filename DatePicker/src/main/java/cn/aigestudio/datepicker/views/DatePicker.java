@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.List;
 
 import cn.aigestudio.datepicker.bizs.decors.DPDecor;
@@ -201,6 +202,10 @@ public class DatePicker extends LinearLayout {
 
     public void setDeferredDisplay(boolean isDeferredDisplay) {
         monthView.setDeferredDisplay(isDeferredDisplay);
+    }
+
+    public void setSelectRange(Calendar startDate, Calendar endDate){
+        monthView.setSelectRange(startDate, endDate);
     }
 
     /**
