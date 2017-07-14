@@ -2,7 +2,6 @@ package cn.aigestudio.datepicker.views;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
@@ -24,6 +23,7 @@ import android.widget.Scroller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +88,8 @@ public class MonthView extends View {
             isHolidayDisplay = true,
             isTodayDisplay = true,
             isDeferredDisplay = true;
+
+    private Date startDate, endDate;
 
     private Map<String, BGCircle> cirApr = new HashMap<>();//选中的背景
     private Map<String, BGCircle> cirDpr = new HashMap<>();//取消选中的背景
@@ -372,7 +374,12 @@ public class MonthView extends View {
 
     private void drawGregorian(Canvas canvas, Rect rect, String str, boolean isWeekend) {
         mPaint.setTextSize(sizeTextGregorian);
-        if (dateSelected.contains(centerYear + "-" + centerMonth + "-" + str)){
+        String stringDate = centerYear + "-" + centerMonth + "-" + str;
+        if (!TextUtils.isEmpty(str) && startDate != null && centerMonth < startDate.getMonth() + 1){
+            mPaint.setColor(mTManager.unableTextColor());
+        } else if (!TextUtils.isEmpty(str) && endDate != null && centerMonth > endDate.getMonth() + 1){
+            mPaint.setColor(mTManager.unableTextColor());
+        } else if (dateSelected.contains(stringDate)){
             mPaint.setColor(mTManager.colorSelectedText());
         } else if (isWeekend) {
             mPaint.setColor(mTManager.colorWeekend());
@@ -523,6 +530,12 @@ public class MonthView extends View {
         this.isDeferredDisplay = isDeferredDisplay;
     }
 
+    void setSelectRange(Date startDate, Date endDate){
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+
     private void smoothScrollTo(int fx, int fy) {
         int dx = fx - mScroller.getFinalX();
         int dy = fy - mScroller.getFinalY();
@@ -594,34 +607,9 @@ public class MonthView extends View {
                         BGCircle circle = createCircle(
                                 region.getBounds().centerX() + indexMonth * width,
                                 region.getBounds().centerY() + indexYear * height);
+                        cirApr.put(date, circle);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            ValueAnimator animScale1 =
-                                    ObjectAnimator.ofInt(circle, "radius", 0, animZoomOut1);
-                            animScale1.setDuration(250);
-                            animScale1.setInterpolator(decelerateInterpolator);
-                            animScale1.addUpdateListener(scaleAnimationListener);
-
-                            ValueAnimator animScale2 =
-                                    ObjectAnimator.ofInt(circle, "radius", animZoomOut1, animZoomIn1);
-                            animScale2.setDuration(100);
-                            animScale2.setInterpolator(accelerateInterpolator);
-                            animScale2.addUpdateListener(scaleAnimationListener);
-
-                            ValueAnimator animScale3 =
-                                    ObjectAnimator.ofInt(circle, "radius", animZoomIn1, animZoomOut2);
-                            animScale3.setDuration(150);
-                            animScale3.setInterpolator(decelerateInterpolator);
-                            animScale3.addUpdateListener(scaleAnimationListener);
-
-                            ValueAnimator animScale4 =
-                                    ObjectAnimator.ofInt(circle, "radius", animZoomOut2, circleRadius);
-                            animScale4.setDuration(50);
-                            animScale4.setInterpolator(accelerateInterpolator);
-                            animScale4.addUpdateListener(scaleAnimationListener);
-
-                            AnimatorSet animSet = new AnimatorSet();
-                            animSet.playSequentially(animScale1, animScale2, animScale3, animScale4);
-                            animSet.addListener(new AnimatorListenerAdapter() {
+                            startSelectAnim(circle, new AnimatorListenerAdapter() {
                                 @Override
                                 public void onAnimationEnd(Animator animation) {
                                     if (null != onDatePickedListener) {
@@ -629,10 +617,7 @@ public class MonthView extends View {
                                     }
                                 }
                             });
-                            animSet.start();
-                        }
-                        cirApr.put(date, circle);
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                        } else {
                             invalidate();
                             if (null != onDatePickedListener) {
                                 onDatePickedListener.onDatePicked(date);
@@ -651,7 +636,7 @@ public class MonthView extends View {
                             BGCircle circle = cirApr.get(date);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                                 ValueAnimator animScale = ObjectAnimator.ofInt(circle, "radius", circleRadius, 0);
-                                animScale.setDuration(250);
+                                animScale.setDuration(200);
                                 animScale.setInterpolator(accelerateInterpolator);
                                 animScale.addUpdateListener(scaleAnimationListener);
                                 animScale.addListener(new AnimatorListenerAdapter() {
@@ -672,37 +657,10 @@ public class MonthView extends View {
                             BGCircle circle = createCircle(
                                     region.getBounds().centerX() + indexMonth * width,
                                     region.getBounds().centerY() + indexYear * height);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                ValueAnimator animScale1 =
-                                        ObjectAnimator.ofInt(circle, "radius", 0, animZoomOut1);
-                                animScale1.setDuration(250);
-                                animScale1.setInterpolator(decelerateInterpolator);
-                                animScale1.addUpdateListener(scaleAnimationListener);
-
-                                ValueAnimator animScale2 =
-                                        ObjectAnimator.ofInt(circle, "radius", animZoomOut1, animZoomIn1);
-                                animScale2.setDuration(100);
-                                animScale2.setInterpolator(accelerateInterpolator);
-                                animScale2.addUpdateListener(scaleAnimationListener);
-
-                                ValueAnimator animScale3 =
-                                        ObjectAnimator.ofInt(circle, "radius", animZoomIn1, animZoomOut2);
-                                animScale3.setDuration(150);
-                                animScale3.setInterpolator(decelerateInterpolator);
-                                animScale3.addUpdateListener(scaleAnimationListener);
-
-                                ValueAnimator animScale4 =
-                                        ObjectAnimator.ofInt(circle, "radius", animZoomOut2, circleRadius);
-                                animScale4.setDuration(50);
-                                animScale4.setInterpolator(accelerateInterpolator);
-                                animScale4.addUpdateListener(scaleAnimationListener);
-
-                                AnimatorSet animSet = new AnimatorSet();
-                                animSet.playSequentially(animScale1, animScale2, animScale3, animScale4);
-                                animSet.start();
-                            }
                             cirApr.put(date, circle);
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                startSelectAnim(circle, null);
+                            } else {
                                 invalidate();
                             }
                         }
@@ -723,6 +681,40 @@ public class MonthView extends View {
                 }
             }
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void startSelectAnim(BGCircle circle, AnimatorListenerAdapter listener) {
+//            ValueAnimator animScale1 =
+//                    ObjectAnimator.ofInt(circle, "radius", 0, animZoomOut1);
+//            animScale1.setDuration(250);
+//            animScale1.setInterpolator(decelerateInterpolator);
+//            animScale1.addUpdateListener(scaleAnimationListener);
+//
+//            ValueAnimator animScale2 =
+//                    ObjectAnimator.ofInt(circle, "radius", animZoomOut1, animZoomIn1);
+//            animScale2.setDuration(100);
+//            animScale2.setInterpolator(accelerateInterpolator);
+//            animScale2.addUpdateListener(scaleAnimationListener);
+//
+//            ValueAnimator animScale3 =
+//                    ObjectAnimator.ofInt(circle, "radius", animZoomIn1, animZoomOut2);
+//            animScale3.setDuration(150);
+//            animScale3.setInterpolator(decelerateInterpolator);
+//            animScale3.addUpdateListener(scaleAnimationListener);
+
+            ValueAnimator animScale4 =
+                    ObjectAnimator.ofInt(circle, "radius", 0, circleRadius);
+            animScale4.setDuration(200);
+            animScale4.setInterpolator(accelerateInterpolator);
+            animScale4.addUpdateListener(scaleAnimationListener);
+
+//            AnimatorSet animSet = new AnimatorSet();
+//            animSet.playSequentially(animScale1, animScale2, animScale3, animScale4);
+            if (listener != null){
+                animScale4.addListener(listener);
+            }
+            animScale4.start();
     }
 
     private void computeDate() {
